@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OmniJob Scraper Pro | Multi-Source Job Scraper & Google Sheet Automator</title>
+  <meta name="description" content="Scrape the latest real-time jobs from RemoteOK, WeWorkRemotely, Jobicy, Arbeitnow, and Remotive with instant CSV download and date-wise automated Google Sheets tabs.">
+  
+  <!-- Modern Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <header class="navbar">
+    <div class="nav-container">
+      <a href="/" class="brand-wrapper">
+        <div class="brand-logo-glow">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="2" y1="12" x2="22" y2="12"></line>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1>OmniJob Scraper</h1>
+          <span>Multi-Source & Google Sheet Automator</span>
+        </div>
+      </a>
+
+      <div class="nav-actions">
+        <div class="date-pill" id="liveDatePill">
+          <span class="pulse-dot"></span>
+          <span id="currentDateDisplay">Loading Date...</span>
+        </div>
+        
+        <button class="btn btn-secondary" id="openHistoryBtn" title="View previously saved CSV files">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+          </svg>
+          Saved CSVs
+        </button>
+
+        <button class="btn btn-sheets" id="openSettingsBtn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="3" y1="9" x2="21" y2="9"></line>
+            <line x1="9" y1="21" x2="9" y2="9"></line>
+          </svg>
+          Google Sheet Setup
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="app-container">
+    
+    <!-- Hero Header -->
+    <section class="hero-header">
+      <div class="hero-badge">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+        Multi-Source Live Scraper + Sheet Tab Automator
+      </div>
+      <h2 class="hero-title">Find Latest Jobs & Sync <span class="hero-gradient-text">Date-Wise to Google Sheets</span></h2>
+      <p class="hero-subtitle">Scrape thousands of verified jobs from RemoteOK, WeWorkRemotely, Jobicy, Arbeitnow, and Remotive. Download as CSV or automatically create fresh date-wise tabs in your Google Sheet.</p>
+    </section>
+
+    <!-- Scraper Form Card -->
+    <section class="glass-panel form-card">
+      <form id="jobScraperForm">
+        <div class="form-grid">
+          
+          <!-- Job Title & Keyword -->
+          <div class="form-group col-8">
+            <label for="keywordInput" class="form-label">
+              <span>Job Title / Keyword</span>
+              <span class="label-hint">e.g. Python, React, Data Engineer, DevOps</span>
+            </label>
+            <div class="input-with-icon">
+              <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+              <input type="text" id="keywordInput" class="form-input" placeholder="Enter role or skills (e.g. Python Developer, Full Stack, AI)..." autofocus>
+            </div>
+            <!-- Quick Suggestion Pills -->
+            <div class="quick-pills">
+              <span class="pill-btn" data-kw="Python">Python</span>
+              <span class="pill-btn" data-kw="Full Stack">Full Stack</span>
+              <span class="pill-btn" data-kw="React">React</span>
+              <span class="pill-btn" data-kw="Data Engineer">Data Engineer</span>
+              <span class="pill-btn" data-kw="DevOps">DevOps</span>
+              <span class="pill-btn" data-kw="Machine Learning">AI / ML</span>
+              <span class="pill-btn" data-kw="UI/UX Designer">Design</span>
+              <span class="pill-btn" data-kw="Product Manager">Product</span>
+            </div>
+          </div>
+
+          <!-- Location Selector -->
+          <div class="form-group col-4">
+            <label for="locationInput" class="form-label">
+              <span>Location / Geo</span>
+              <span class="label-hint">Filter location</span>
+            </label>
+            <select id="locationInput" class="form-select">
+              <option value="Any" selected>Any / All Locations</option>
+              <option value="Remote">100% Remote / Worldwide</option>
+              <option value="USA">United States</option>
+              <option value="Europe">Europe / UK</option>
+              <option value="Canada">Canada</option>
+              <option value="Asia">Asia / APAC</option>
+            </select>
+          </div>
+
+          <!-- Date Filter Segmented Group -->
+          <div class="form-group col-12">
+            <label class="form-label">
+              <span>Date Posted / Freshness</span>
+              <span class="label-hint">Filter by when the job was posted</span>
+            </label>
+            <div class="segmented-group">
+              <div class="segmented-option">
+                <input type="radio" id="dateAll" name="dateFilter" value="all" checked>
+                <label for="dateAll" class="segmented-label">🌐 All Recent</label>
+              </div>
+              <div class="segmented-option">
+                <input type="radio" id="dateToday" name="dateFilter" value="today">
+                <label for="dateToday" class="segmented-label">🌟 Today (24h)</label>
+              </div>
+              <div class="segmented-option">
+                <input type="radio" id="date3d" name="dateFilter" value="3days">
+                <label for="date3d" class="segmented-label">⚡ Past 3 Days</label>
+              </div>
+              <div class="segmented-option">
+                <input type="radio" id="date7d" name="dateFilter" value="7days">
+                <label for="date7d" class="segmented-label">📅 Past 7 Days</label>
+              </div>
+              <div class="segmented-option">
+                <input type="radio" id="date14d" name="dateFilter" value="14days">
+                <label for="date14d" class="segmented-label">🕒 Past 14 Days</label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Where to Search / Multi-Source Selection -->
+          <div class="form-group col-12">
+            <div class="scope-header-group">
+              <label class="form-label" style="margin-bottom:0;">
+                <span>🎯 Where to Search (Target Platforms & Portals)</span>
+                <span class="label-hint">LinkedIn, Social Media, Tech Boards & Search Engines</span>
+              </label>
+
+              <!-- Category quick filters -->
+              <div class="scope-category-pills">
+                <button type="button" class="scope-btn active" data-scope="all">🌟 All Platforms</button>
+                <button type="button" class="scope-btn" data-scope="professional">💼 Professional (LinkedIn)</button>
+                <button type="button" class="scope-btn" data-scope="social">💬 Social Media (Reddit, HN)</button>
+                <button type="button" class="scope-btn" data-scope="jobboards">🌐 Tech Job Boards (5 Sites)</button>
+                <button type="button" class="pill-btn" id="clearAllSources">Clear</button>
+              </div>
+            </div>
+
+            <!-- 8 Scrape Sources Grid -->
+            <div class="source-selection-grid">
+              <!-- LinkedIn -->
+              <div class="source-checkbox-card" data-category="professional">
+                <input type="checkbox" id="srcLinkedIn" name="sources" value="LinkedIn" checked>
+                <label for="srcLinkedIn" class="source-card-label">
+                  <span class="dot" style="background:#0a66c2;"></span>
+                  <span>LinkedIn Jobs</span>
+                </label>
+              </div>
+
+              <!-- Reddit -->
+              <div class="source-checkbox-card" data-category="social">
+                <input type="checkbox" id="srcReddit" name="sources" value="Reddit" checked>
+                <label for="srcReddit" class="source-card-label">
+                  <span class="dot" style="background:#ff4500;"></span>
+                  <span>Reddit (r/forhire)</span>
+                </label>
+              </div>
+
+              <!-- HackerNews -->
+              <div class="source-checkbox-card" data-category="social">
+                <input type="checkbox" id="srcHN" name="sources" value="HackerNews" checked>
+                <label for="srcHN" class="source-card-label">
+                  <span class="dot" style="background:#ff6600;"></span>
+                  <span>HackerNews (YC)</span>
+                </label>
+              </div>
+
+              <!-- RemoteOK -->
+              <div class="source-checkbox-card" data-category="jobboards">
+                <input type="checkbox" id="srcRemoteOK" name="sources" value="RemoteOK" checked>
+                <label for="srcRemoteOK" class="source-card-label">
+                  <span class="dot" style="background:#f87171;"></span>
+                  <span>RemoteOK</span>
+                </label>
+              </div>
+
+              <!-- WeWorkRemotely -->
+              <div class="source-checkbox-card" data-category="jobboards">
+                <input type="checkbox" id="srcWWR" name="sources" value="WeWorkRemotely" checked>
+                <label for="srcWWR" class="source-card-label">
+                  <span class="dot" style="background:#fb923c;"></span>
+                  <span>WeWorkRemotely</span>
+                </label>
+              </div>
+
+              <!-- Jobicy -->
+              <div class="source-checkbox-card" data-category="jobboards">
+                <input type="checkbox" id="srcJobicy" name="sources" value="Jobicy" checked>
+                <label for="srcJobicy" class="source-card-label">
+                  <span class="dot" style="background:#60a5fa;"></span>
+                  <span>Jobicy</span>
+                </label>
+              </div>
+
+              <!-- Arbeitnow -->
+              <div class="source-checkbox-card" data-category="jobboards">
+                <input type="checkbox" id="srcArbeitnow" name="sources" value="Arbeitnow" checked>
+                <label for="srcArbeitnow" class="source-card-label">
+                  <span class="dot" style="background:#34d399;"></span>
+                  <span>Arbeitnow</span>
+                </label>
+              </div>
+
+              <!-- Remotive -->
+              <div class="source-checkbox-card" data-category="jobboards">
+                <input type="checkbox" id="srcRemotive" name="sources" value="Remotive" checked>
+                <label for="srcRemotive" class="source-card-label">
+                  <span class="dot" style="background:#a78bfa;"></span>
+                  <span>Remotive</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Max results & Limit -->
+          <div class="form-group col-6">
+            <label for="maxResultsInput" class="form-label">
+              <span>Max Results Limit</span>
+              <span class="label-hint">Total jobs to retrieve across sources</span>
+            </label>
+            <select id="maxResultsInput" class="form-select">
+              <option value="25">25 Jobs</option>
+              <option value="50" selected>50 Jobs (Recommended)</option>
+              <option value="100">100 Jobs</option>
+              <option value="200">200 Jobs</option>
+            </select>
+          </div>
+
+          <!-- Auto Google Sheet Sync Toggle -->
+          <div class="form-group col-6">
+            <label class="toggle-wrapper" for="autoSyncToggle" style="height:100%; display:flex; align-items:center;">
+              <div class="switch">
+                <input type="checkbox" id="autoSyncToggle">
+                <span class="slider"></span>
+              </div>
+              <div>
+                <span class="toggle-text">📊 Auto-Sync to Google Sheet</span>
+                <span class="toggle-sub">New date pe automatically new sheet tab create kre</span>
+              </div>
+            </label>
+          </div>
+
+          <!-- 1-Click Live Deep Search & Social Dorking Hub -->
+          <div class="col-12">
+            <div class="deep-search-card">
+              <div class="deep-search-header">
+                <div class="deep-search-title">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--accent-cyan);"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                  <span>1-Click Live Deep Search &amp; Social Media Launchers</span>
+                </div>
+                <small style="color:var(--text-dim);">Real-time queries based on your input above</small>
+              </div>
+
+              <div class="deep-search-grid" id="deepSearchLinksGrid">
+                <!-- Google Jobs & ATS -->
+                <a href="https://www.google.com/search?q=site:greenhouse.io+OR+site:lever.co+OR+site:jobs.ashbyhq.com+%22Software%22" target="_blank" rel="noopener noreferrer" class="deep-search-link" id="deepSearchGoogleAts">
+                  <div class="deep-search-icon icon-google">🔍</div>
+                  <div>
+                    <div>Google Search (Direct ATS)</div>
+                    <small style="color:var(--text-dim); font-size:0.7rem;">Greenhouse, Lever, Ashby</small>
+                  </div>
+                </a>
+
+                <!-- Google Jobs Dedicated Portal -->
+                <a href="https://www.google.com/search?q=jobs+Software+Remote&ibp=htl;jobs" target="_blank" rel="noopener noreferrer" class="deep-search-link" id="deepSearchGoogleJobs">
+                  <div class="deep-search-icon icon-google">🌐</div>
+                  <div>
+                    <div>Google Jobs Engine</div>
+                    <small style="color:var(--text-dim); font-size:0.7rem;">Official Google Jobs Feed</small>
+                  </div>
+                </a>
+
+                <!-- LinkedIn Full Portal Search -->
+                <a href="https://www.linkedin.com/jobs/search/?keywords=Software&f_TPR=r86400" target="_blank" rel="noopener noreferrer" class="deep-search-link" id="deepSearchLinkedIn">
+                  <div class="deep-search-icon icon-linkedin">💼</div>
+                  <div>
+                    <div>LinkedIn Live Search</div>
+                    <small style="color:var(--text-dim); font-size:0.7rem;">Past 24 hours postings</small>
+                  </div>
+                </a>
+
+                <!-- Twitter / X Live Hiring Posts -->
+                <a href="https://x.com/search?q=%22Software%22+(%22we+are+hiring%22+OR+%22hiring%22)&f=live" target="_blank" rel="noopener noreferrer" class="deep-search-link" id="deepSearchTwitter">
+                  <div class="deep-search-icon icon-twitter">🐦</div>
+                  <div>
+                    <div>Twitter / X Hiring Posts</div>
+                    <small style="color:var(--text-dim); font-size:0.7rem;">Live social media tweets</small>
+                  </div>
+                </a>
+
+                <!-- Reddit Live Search -->
+                <a href="https://www.reddit.com/r/forhire+remotejobs/search/?q=Software&sort=new" target="_blank" rel="noopener noreferrer" class="deep-search-link" id="deepSearchReddit">
+                  <div class="deep-search-icon icon-reddit">💬</div>
+                  <div>
+                    <div>Reddit Jobs Search</div>
+                    <small style="color:var(--text-dim); font-size:0.7rem;">r/forhire, r/remotejobs</small>
+                  </div>
+                </a>
+
+                <!-- Wellfound / Startups -->
+                <a href="https://wellfound.com/jobs" target="_blank" rel="noopener noreferrer" class="deep-search-link" id="deepSearchWellfound">
+                  <div class="deep-search-icon icon-wellfound">🚀</div>
+                  <div>
+                    <div>Wellfound (AngelList)</div>
+                    <small style="color:var(--text-dim); font-size:0.7rem;">Top funded startups</small>
+                  </div>
+                </a>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Form Action Area -->
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" id="resetFormBtn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="1 4 1 10 7 10"></polyline>
+              <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+            </svg>
+            Reset
+          </button>
+          <button type="submit" class="btn btn-primary btn-large" id="scrapeBtn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+            </svg>
+            Scrape Latest Jobs (All Sources)
+          </button>
+        </div>
+      </form>
+
+      <!-- Scraping In-Progress Notification -->
+      <div class="progress-card glass-panel" id="progressCard">
+        <div class="progress-header">
+          <div class="progress-title">
+            <div class="spinner"></div>
+            <span>Scraping multiple job portals in parallel...</span>
+          </div>
+          <span style="font-size:0.8rem; color:var(--text-muted);" id="progressElapsed">Fetching live API feeds</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill"></div>
+        </div>
+        <div class="source-status-chips">
+          <span class="source-chip fetching" id="chipLinkedIn">LinkedIn</span>
+          <span class="source-chip fetching" id="chipReddit">Reddit</span>
+          <span class="source-chip fetching" id="chipHN">HackerNews</span>
+          <span class="source-chip fetching" id="chipRemoteOK">RemoteOK</span>
+          <span class="source-chip fetching" id="chipWWR">WeWorkRemotely</span>
+          <span class="source-chip fetching" id="chipJobicy">Jobicy</span>
+          <span class="source-chip fetching" id="chipArbeitnow">Arbeitnow</span>
+          <span class="source-chip fetching" id="chipRemotive">Remotive</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Stats Counter Bar -->
+    <section class="stats-grid" id="statsSection">
+      <div class="glass-panel stat-card">
+        <div class="stat-icon total">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+        </div>
+        <div class="stat-info">
+          <span class="stat-number" id="statTotalJobs">0</span>
+          <span class="stat-label">Total Jobs Found</span>
+        </div>
+      </div>
+
+      <div class="glass-panel stat-card">
+        <div class="stat-icon today">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
+        </div>
+        <div class="stat-info">
+          <span class="stat-number" id="statTodayJobs">0</span>
+          <span class="stat-label">Fresh Today's Jobs</span>
+        </div>
+      </div>
+
+      <div class="glass-panel stat-card">
+        <div class="stat-icon sources">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+        </div>
+        <div class="stat-info">
+          <span class="stat-number" id="statSourcesCount">8</span>
+          <span class="stat-label">Sources Queried</span>
+        </div>
+      </div>
+
+      <div class="glass-panel stat-card">
+        <div class="stat-icon sheets">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+        </div>
+        <div class="stat-info">
+          <span class="stat-number" style="font-size:1.15rem; word-break:break-all;" id="statSheetTab">Ready</span>
+          <span class="stat-label" id="statSheetSub">Google Sheet Status</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Results Table Section -->
+    <section class="glass-panel results-card" id="resultsSection">
+      <div class="results-toolbar">
+        <div class="results-title-group">
+          <h2>Job Postings Stream</h2>
+          <span id="resultsSubtext">Showing verified live postings across sources</span>
+        </div>
+
+        <div class="results-action-buttons">
+          <button class="btn btn-csv" id="downloadCsvBtn" disabled>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            Download CSV
+          </button>
+
+          <button class="btn btn-sheets" id="syncSheetsBtn" disabled>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="3" y1="9" x2="21" y2="9"></line>
+              <line x1="9" y1="21" x2="9" y2="9"></line>
+            </svg>
+            Sync to Google Sheet
+          </button>
+        </div>
+      </div>
+
+      <!-- Live Search & Column Filters inside table -->
+      <div class="table-filter-bar">
+        <input type="text" id="tableFilterInput" class="search-filter-input" placeholder="🔍 Instant search in current results (title, company, tag, salary)...">
+        
+        <select id="sourceFilterSelect" class="form-select" style="max-width: 180px; min-height: 40px; padding: 0.4rem 0.8rem;">
+          <option value="ALL">All Sources (8 Platforms)</option>
+          <option value="LinkedIn">LinkedIn</option>
+          <option value="Reddit">Reddit (r/forhire)</option>
+          <option value="HackerNews">HackerNews (YC)</option>
+          <option value="RemoteOK">RemoteOK</option>
+          <option value="WeWorkRemotely">WeWorkRemotely</option>
+          <option value="Jobicy">Jobicy</option>
+          <option value="Arbeitnow">Arbeitnow</option>
+          <option value="Remotive">Remotive</option>
+        </select>
+
+        <select id="sortSelect" class="form-select" style="max-width: 180px; min-height: 40px; padding: 0.4rem 0.8rem;">
+          <option value="date_desc">Newest First</option>
+          <option value="date_asc">Oldest First</option>
+          <option value="company">Company (A-Z)</option>
+          <option value="title">Title (A-Z)</option>
+        </select>
+      </div>
+
+      <!-- Table Wrapper -->
+      <div class="table-wrapper">
+        <table class="jobs-table" id="jobsTable">
+          <thead>
+            <tr>
+              <th>Company</th>
+              <th>Job Title</th>
+              <th>Location</th>
+              <th>Posted Date</th>
+              <th>Type</th>
+              <th>Salary</th>
+              <th>Source</th>
+              <th>Skills / Tags</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="jobsTableBody">
+            <!-- Initial Empty State -->
+            <tr>
+              <td colspan="9">
+                <div class="empty-state">
+                  <div class="empty-icon">💼</div>
+                  <h3>No jobs scraped yet</h3>
+                  <p>Fill out the form above and click <strong>"Scrape Latest Jobs"</strong> to discover jobs across all platforms.</p>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Google Sheets Configuration Modal -->
+  <div class="modal-overlay" id="settingsModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--accent-emerald);">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="3" y1="9" x2="21" y2="9"></line>
+            <line x1="9" y1="21" x2="9" y2="9"></line>
+          </svg>
+          Google Sheets Automation Setup
+        </h3>
+        <button class="close-btn" id="closeSettingsBtn">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="modal-tabs">
+          <button class="modal-tab-btn active" data-tab="tabWebhook">Method 1: Webhook (1-Click Instant)</button>
+          <button class="modal-tab-btn" data-tab="tabServiceAccount">Method 2: Service Account</button>
+        </div>
+
+        <!-- Tab 1: Webhook -->
+        <div id="tabWebhook" class="tab-pane">
+          <p style="font-size:0.86rem; color:#cbd5e1; margin-bottom:1rem;">
+            This is the simplest, zero-cloud setup. Har new date pe automatically aapki Google Sheet me new date tab create hogi (e.g. <code>Jobs_2026-10-01</code>).
+          </p>
+
+          <div style="display:flex; flex-direction:column; gap:0.75rem; margin-bottom:1rem;">
+            <div class="step-card">
+              <span class="step-num">1</span>
+              <div class="step-content">
+                <p><strong>Open your Google Sheet</strong> & click on menu <code>Extensions</code> &gt; <code>Apps Script</code>.</p>
+              </div>
+            </div>
+            
+            <div class="step-card">
+              <span class="step-num">2</span>
+              <div class="step-content">
+                <p>Delete everything in the editor, paste this ready-to-use code, and click <strong>Save</strong>:</p>
+                <div class="code-box-container" style="margin-top:0.5rem;">
+                  <button type="button" class="copy-code-btn" id="copyAppsScriptBtn">Copy Code</button>
+                  <pre id="appsScriptCodeDisplay">Loading Apps Script template...</pre>
+                </div>
+              </div>
+            </div>
+
+            <div class="step-card">
+              <span class="step-num">3</span>
+              <div class="step-content">
+                <p>Click <strong>Deploy</strong> &gt; <strong>New deployment</strong> &gt; Select type: <strong>Web app</strong>.</p>
+                <small>Set Execute as: <em>Me</em> and Who has access: <em>Anyone</em>, then click Deploy.</small>
+              </div>
+            </div>
+
+            <div class="step-card">
+              <span class="step-num">4</span>
+              <div class="step-content">
+                <p>Paste the generated <strong>Web App URL</strong> below:</p>
+                <div style="margin-top:0.4rem; display:flex; gap:0.5rem;">
+                  <input type="url" id="webhookUrlInput" class="form-input" placeholder="https://script.google.com/macros/s/.../exec">
+                  <button type="button" class="btn btn-secondary" id="testWebhookBtn">Test Ping</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 2: Service Account -->
+        <div id="tabServiceAccount" class="tab-pane" style="display:none;">
+          <p style="font-size:0.86rem; color:#cbd5e1; margin-bottom:1rem;">
+            For advanced GCP users who have a Google Cloud Service Account JSON key.
+          </p>
+
+          <div class="form-group" style="margin-bottom:1rem;">
+            <label for="spreadsheetIdInput" class="form-label">
+              <span>Google Spreadsheet ID / URL</span>
+            </label>
+            <input type="text" id="spreadsheetIdInput" class="form-input" placeholder="e.g. 1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms">
+            <small style="color:var(--text-dim); margin-top:0.3rem;">Make sure to share your sheet with the service account email as Editor!</small>
+          </div>
+
+          <div class="form-group" style="margin-bottom:1rem;">
+            <label class="form-label">Upload <code>service_account.json</code> file:</label>
+            <input type="file" id="serviceAccountFileInput" class="form-input" accept=".json">
+            <span id="saStatusBadge" style="font-size:0.8rem; margin-top:0.3rem; color:var(--text-muted);">Status: Checking credentials...</span>
+          </div>
+        </div>
+
+        <!-- Common Tab Prefix Setting -->
+        <div class="form-group" style="border-top:1px solid var(--border-subtle); padding-top:1rem;">
+          <label for="tabPrefixInput" class="form-label">
+            <span>Date Tab Name Prefix</span>
+            <span class="label-hint">e.g. "Jobs_" results in "Jobs_2026-10-01"</span>
+          </label>
+          <input type="text" id="tabPrefixInput" class="form-input" value="Jobs_" placeholder="Jobs_">
+        </div>
+
+        <!-- Modal Footer Actions -->
+        <div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:1rem;">
+          <button type="button" class="btn btn-secondary" id="cancelSettingsBtn">Close</button>
+          <button type="button" class="btn btn-primary" id="saveSettingsBtn">Save Settings</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Job Details Modal -->
+  <div class="modal-overlay" id="detailsModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 id="modalJobTitle">Job Details</h3>
+        <button class="close-btn" id="closeDetailsBtn">&times;</button>
+      </div>
+      <div class="modal-body" id="modalJobContent">
+        <!-- Rendered via JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Saved CSVs History Modal -->
+  <div class="modal-overlay" id="historyModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+          </svg>
+          Saved CSV Exports History
+        </h3>
+        <button class="close-btn" id="closeHistoryBtn">&times;</button>
+      </div>
+      <div class="modal-body" id="historyModalContent">
+        <p style="font-size:0.85rem; color:var(--text-muted);">Fetching saved files...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification System -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Application Script -->
+  <script src="/static/js/app.js"></script>
+</body>
+</html>

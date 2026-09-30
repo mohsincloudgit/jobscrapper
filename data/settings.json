@@ -1,0 +1,17 @@
+{
+  "google_sync_enabled": false,
+  "sheets_mode": "webhook",
+  "apps_script_url": "",
+  "spreadsheet_id": "",
+  "tab_name_prefix": "Jobs_",
+  "date_format": "%Y-%m-%d",
+  "service_account_file": "credentials/service_account.json",
+  "default_sources": [
+    "RemoteOK",
+    "WeWorkRemotely",
+    "Jobicy",
+    "Arbeitnow",
+    "Remotive"
+  ],
+  "max_results_default": 50
+}
